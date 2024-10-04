@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BookMark App</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #83badf;
+        }
+
+        .container {
+            width: 500px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #ecaaaa;
+            box-shadow: 0px 0px 10px rgba(0,0,0,0.1);
+            margin-top: 50px;
+        }
+        .container h3{
+            text-align: center;
+        }
+
+        h2 {
+            color: #3f1bdf;
+            text-align: center;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 8px;
+            box-sizing: border-box;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            cursor: pointer;
+        }
+
+        .btn-success {
+            background-color: #28a745;
+            color: white;
+        }
+
+        .btn-danger {
+            background-color: #dc3545;
+            color: white;
+        }
+
+        .bookmark {
+            margin-top: 10px;
+            padding: 10px;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .bookmark h3 {
+            display: inline-block;
+            margin-right: 20px;
+        }
+
+        .btn-group {
+            display: inline-block;
+        }
+
+        .btn-group a {
+            margin-right: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h3 class="text-muted">Bookmaker App</h3>
+        <div class="jumbotron">
+            <h2>Bookmark Your Favorite Sites</h2>
+            <form>
+                <div class="form-group">
+                    <label for="siteName">Site Name</label>
+                    <input type="text" name="siteName" id="siteName" class="form-control" placeholder="Enter Site Name">
+                </div>
+                <div class="form-group">
+                    <label for="siteUrl">Site Url</label>
+                    <input type="text" name="siteUrl" id="siteUrl" class="form-control" placeholder="Enter Site Url...">
+                </div>
+                <button class="btn btn-success">Submit</button>
+            </form>
+        </div>
+        <div id="bookmarks" class="bookmarks"></div>
+    </div>
+
+    <script>
+        function saveBookmark(e){
+            e.preventDefault();
+
+            var siteName = document.querySelector("#siteName").value;
+            var siteUrl = document.querySelector("#siteUrl").value;
+
+           
+            if(!siteName || !siteUrl){
+                alert('Please fill in both fields');
+                return;
+            }
+
+            var bookmark = {
+                name: siteName,
+                url: siteUrl
+            };
+
+           
+            var bookmarks = [];
+            if(localStorage.getItem('bookmarks') !== null){
+                bookmarks = JSON.parse(localStorage.getItem("bookmarks"));      
+            }
+
+           
+            bookmarks.push(bookmark);
+
+            
+            localStorage.setItem("bookmarks", JSON.stringify(bookmarks));
+
+           
+            document.querySelector("#siteName").value = '';
+            document.querySelector("#siteUrl").value = '';
+
+            
+            fetchBookmarks();
+        }
+
+        function fetchBookmarks(){
+            var bookmarks = JSON.parse(localStorage.getItem("bookmarks"));
+            var output = document.querySelector("#bookmarks");
+
+            output.innerHTML = "";
+
+            if(bookmarks){
+                for(var i=0; i<bookmarks.length; i++){
+                    var name = bookmarks[i].name;
+                    var url = bookmarks[i].url;
+
+                    
+                    var div = document.createElement("div");
+                    div.className = "bookmark";
+
+                    var h3 = document.createElement("h3");
+                    h3.textContent = name;
+                    
+                    var a = document.createElement("a");
+                    a.href = url;
+                    a.className = "btn btn-success";
+                    a.target = "_blank"; 
+                    a.textContent = "Visit";
+
+                    var button = document.createElement("button");
+                    button.className = "btn btn-danger";
+                    button.textContent = "Delete";
+
+                    
+                    button.addEventListener("click", function(e){
+                        deleteBookmark(name);
+                    });
+
+                    div.appendChild(h3);
+                    div.appendChild(a);
+                    div.appendChild(button);
+
+                    output.appendChild(div);
+                }
+            }
+        }
+
+        function deleteBookmark(name){
+            var bookmarks = JSON.parse(localStorage.getItem("bookmarks"));
+
+            
+            bookmarks = bookmarks.filter(function(bookmark){
+                return bookmark.name !== name;
+            });
+
+           
+            localStorage.setItem("bookmarks", JSON.stringify(bookmarks));
+
+            
+            fetchBookmarks();
+        }
+
+        document.querySelector("form").addEventListener("submit", saveBookmark);
+
+        window.addEventListener("load", fetchBookmarks);
+    </script>
+</body>
+</html>
